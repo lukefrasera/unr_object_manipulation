@@ -7,7 +7,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   moveit_core
 )
-
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
 # add_service_files(
 #   FILES
 # )
