@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   message_generation
+  moveit_core
 )
 
 # add_service_files(
@@ -29,7 +30,8 @@ generate_messages(
 catkin_package(
   # INCLUDE_DIRS
   # LIBRARIES
-  # CATKIN_DEPENDS
+  CATKIN_DEPENDS
+    moveit_core
   # DPENDS
 )
 
@@ -39,3 +41,20 @@ execute_process(
   OUTPUT_VARIABLE ROS_VERSION
 )
 
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+)
+
+################################################################################
+############################ Build Main Library API ############################
+################################################################################
+add_library(grasp_server_library
+  src/grasp_server_library/grasp_server.cc
+)
+
+target_link_libraries(grasp_server_library
+  ${catkin_LIBRARIES}
+)
+################################################################################
+################################################################################
