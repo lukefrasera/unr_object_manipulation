@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(unr_manipulation)
 
+include(cmake/CPlusPlusCompiler.cmake)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -21,12 +23,10 @@ include_directories(${GTEST_INCLUDE_DIRS})
 #   FILES
 # )
 
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
-
-
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 catkin_package(
   # INCLUDE_DIRS
@@ -35,6 +35,8 @@ catkin_package(
     moveit_core
   # DPENDS
 )
+# Setup configuration files
+include(cmake/ManipulationGenHeaders.cmake)
 
 # determine which rosdistro is being used
 execute_process(
@@ -59,3 +61,13 @@ target_link_libraries(grasp_server_library
 )
 ################################################################################
 ################################################################################
+
+add_executable(grasp_server_test
+  src/grasp_server_library/grasp_server_test.cc
+)
+
+target_link_libraries(grasp_server_test
+  grasp_server_library
+  ${GTEST_LIBRARIES}
+  pthread
+)
