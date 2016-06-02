@@ -24,7 +24,6 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 #include "moveit_msgs/Grasp.h"
 #include "unr_object_manipulation/uomconfig.h"
 #include "ros/ros.h"
-// #include "uomconfig.h"
 
 namespace grasplib {
 class Grasp {
@@ -48,8 +47,17 @@ class ObjectPickPlace {
   ObjectPickPlace();
   ~ObjectPickPlace();
 
+  bool GenerateGraspFromPose();
+  bool GetPlace();
+  bool GetPick();
+  bool SetPick();
+  bool SetPlace();
+  bool SetType();
+  bool SetName();
+
  private:
   std::string name;
+  uint32_t type;
   Grasp pick;
   Grasp place;
 };
@@ -79,6 +87,9 @@ class GraspServer {
   bool MergeGraspObjects(std::vector<ObjectPickPlace> objects);
   bool GetArmPose();
   bool GenerateGraspFromPose();
+  bool GetObject();
+  bool GetObjects();
+  bool GetGrasp();
 
   //////////////////////////////////////////////////////////////////////////////
   // Testing Functions
