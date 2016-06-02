@@ -20,6 +20,7 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 #define INCLUDE_GRASP_SERVER_LIBRARY_GRASP_SERVER_H_
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include "moveit_msgs/Grasp.h"
 #include "unr_object_manipulation/uomconfig.h"
 #include "ros/ros.h"
@@ -55,7 +56,7 @@ class ObjectPickPlace {
 
 class GraspServer {
  public:
-  GraspServer(std::string arm);
+  explicit GraspServer(std::string arm);
   ~GraspServer();
 
   // Public Facing API functions
@@ -68,7 +69,26 @@ class GraspServer {
   //////////////////////////////////////////////////////////////////////////////
   // Grasp Functions
   //////////////////////////////////////////////////////////////////////////////
- private:
+  bool AddObject(std::string object);
+  bool RemoveObject(std::string object);
+  bool LoadGraspFile(std::string filename);
+  bool LoadGraspObjects(std::vector<ObjectPickPlace> objects);
+  bool SaveGraspFile(std::string filename);
+  bool SaveGraspObjects(std::vector<ObjectPickPlace> objects);
+  bool MergeGraspFile(std::string filename);
+  bool MergeGraspObjects(std::vector<ObjectPickPlace> objects);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Testing Functions
+  //////////////////////////////////////////////////////////////////////////////
+  bool SendPickPlaceGoal(std::string object);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // PARAMETERS
+  //////////////////////////////////////////////////////////////////////////////
+  bool PostParameters();
+
+ protected:
   ros::NodeHandle nh_;
   std::unordered_map<std::string, ObjectPickPlace> objects_;
 };

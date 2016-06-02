@@ -35,6 +35,18 @@ catkin_package(
     moveit_core
   # DPENDS
 )
+
+# cmake options
+option(LOGGING_ENABLED "Enable Log info printing" OFF)
+if(${LOGGING_ENABLED})
+  set(LOG_INFO_PRINTING ON)
+endif()
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  set(DEBUG ON)
+endif()
+
+
 # Setup configuration files
 include(cmake/ManipulationGenHeaders.cmake)
 
@@ -70,4 +82,10 @@ target_link_libraries(grasp_server_test
   grasp_server_library
   ${GTEST_LIBRARIES}
   pthread
+)
+
+enable_testing()
+add_test(
+  NAME server_test
+  COMMAND grasp_server_test
 )
