@@ -77,6 +77,8 @@ class GraspServer {
   bool SaveGraspObjects(std::vector<ObjectPickPlace> objects);
   bool MergeGraspFile(std::string filename);
   bool MergeGraspObjects(std::vector<ObjectPickPlace> objects);
+  bool GetArmPose();
+  bool GenerateGraspFromPose();
 
   //////////////////////////////////////////////////////////////////////////////
   // Testing Functions
