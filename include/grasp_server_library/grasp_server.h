@@ -18,6 +18,7 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef INCLUDE_GRASP_SERVER_LIBRARY_GRASP_SERVER_H_
 #define INCLUDE_GRASP_SERVER_LIBRARY_GRASP_SERVER_H_
+#include <stdint.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -26,6 +27,20 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 #include "ros/ros.h"
 
 namespace grasplib {
+enum OBJECT_TYPE_e {
+  DYNAMIC,
+  STATIC
+} OBJECT_TYPE;
+
+class Pose {
+ public:
+  Pose();
+  ~Pose();
+
+ private:
+  moveit_msgs::Pose pose_;
+}
+
 class Grasp {
  public:
   Grasp();
@@ -48,8 +63,8 @@ class ObjectPickPlace {
   ~ObjectPickPlace();
 
   bool GenerateGraspFromPose();
-  bool GetPlace();
   bool GetPick();
+  bool GetPlace();
   bool SetPick();
   bool SetPlace();
   bool SetType();
@@ -58,8 +73,8 @@ class ObjectPickPlace {
  private:
   std::string name;
   uint32_t type;
-  Grasp pick;
-  Grasp place;
+  Pose pick;
+  Pose place;
 };
 
 class GraspServer {
@@ -79,17 +94,16 @@ class GraspServer {
   //////////////////////////////////////////////////////////////////////////////
   bool AddObject(std::string object);
   bool RemoveObject(std::string object);
-  bool LoadGraspFile(std::string filename);
-  bool LoadGraspObjects(std::vector<ObjectPickPlace> objects);
-  bool SaveGraspFile(std::string filename);
-  bool SaveGraspObjects(std::vector<ObjectPickPlace> objects);
-  bool MergeGraspFile(std::string filename);
-  bool MergeGraspObjects(std::vector<ObjectPickPlace> objects);
-  bool GetArmPose();
-  bool GenerateGraspFromPose();
-  bool GetObject();
-  bool GetObjects();
-  bool GetGrasp();
+  bool LoadObjects(std::string filename);
+  bool LoadObjects(std::vector<ObjectPickPlace> objects);
+  bool SaveObjects(std::string filename);
+  bool SaveObjects(std::string filename, std::vector<ObjectPickPlace> objects);
+  bool MergeObjects(std::string filename);
+  bool MergeObjects(std::string filename, std::vector<ObjectPickPlace> objects);
+  Pose GetArmPose(std::string arm);
+  Grasp GenerateGraspFromPose(Pose pose);
+  ObjectPickPlace GetObject(std::string object);
+  std::vector<ObjectPickPlace> GetObjects(std::vector<std::string> objects);
 
   //////////////////////////////////////////////////////////////////////////////
   // Testing Functions
@@ -100,6 +114,12 @@ class GraspServer {
   // PARAMETERS
   //////////////////////////////////////////////////////////////////////////////
   bool PostParameters();
+
+  //////////////////////////////////////////////////////////////////////////////
+  // CALLBACK FUNCTIONS
+  //////////////////////////////////////////////////////////////////////////////
+  bool _GenerateGraspCB(std_msgs::String req, Grasp res);
+  bool _GeneratePoseCB(std_msgs::String req, Pose res);
 
  protected:
   ros::NodeHandle nh_;
