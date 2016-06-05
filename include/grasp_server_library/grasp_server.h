@@ -37,6 +37,11 @@ class Pose {
   Pose();
   ~Pose();
 
+  bool SetPose(moveit_msgs::Pose pose);
+  moveit_msgs::Pose GetPose() const;
+  Vec4f GetPoseNormal(Pose pose) const;
+  Vec4f GetPoseNormal() const;
+
  private:
   moveit_msgs::Pose pose_;
 }
