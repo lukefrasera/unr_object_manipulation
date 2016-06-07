@@ -8,9 +8,27 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   message_generation
   moveit_core
+  geometry_msgs
+  moveit_msgs
 )
 find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+find_package(Eigen3)
+find_package(Boost REQUIRED COMPONENTS
+  python
+  thread
+  system
+  program_options
+  filesystem
+)
+find_package(PythonLibs 2.7 REQUIRED)
+
+include_directories(
+  ${Eigen_INCLUDE_DIRS}
+  ${GTEST_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${PYTHON_INCLUDE_DIRS}
+)
+# message("PYTHON INCLUDES ${PYTHON_INCLUDES")
 # add_service_files(
 #   FILES
 # )
@@ -27,6 +45,8 @@ include_directories(${GTEST_INCLUDE_DIRS})
 #   DEPENDENCIES
 #   std_msgs
 # )
+
+catkin_python_setup()
 
 catkin_package(
   # INCLUDE_DIRS
@@ -62,14 +82,61 @@ include_directories(
 )
 
 ################################################################################
+########################## BUILD PYTHON BINDINGS TOOLS #########################
+################################################################################
+set(PYTHON_BINDINGS_LIB_NAME py_bindings_tools)
+add_library(${PYTHON_BINDINGS_LIB_NAME}
+  src/py_bindings_tools/roscpp_initializer.cc
+)
+target_link_libraries(${PYTHON_BINDINGS_LIB_NAME}
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+)
+
+add_library(${PYTHON_BINDINGS_LIB_NAME}_python
+  src/py_bindings_tools/wrap_roscpp_initializer_python.cc
+)
+target_link_libraries(${PYTHON_BINDINGS_LIB_NAME}_python
+  ${PYTHON_BINDINGS_LIB_NAME}
+  ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
+################################################################################
 ############################ Build Main Library API ############################
 ################################################################################
-add_library(grasp_server_library
+set(GRASP_LIBRARY grasp_server_library)
+add_library(${GRASP_LIBRARY}
   src/grasp_server_library/grasp_server.cc
 )
 
-target_link_libraries(grasp_server_library
+target_link_libraries(${GRASP_LIBRARY}
   ${catkin_LIBRARIES}
+)
+################################################################################
+################################################################################
+
+################################################################################
+######################## Build Python Main Library API #########################
+################################################################################
+add_library(${GRASP_LIBRARY}_python
+  src/grasp_server_library/wrap_grasp_server_python.cc
+)
+target_link_libraries(${GRASP_LIBRARY}_python
+  ${GRASP_LIBRARY}
+  ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${PYTHON_BINDINGS_LIB_NAME}
+)
+set_target_properties(${GRASP_LIBRARY}_python
+  PROPERTIES
+    OUTPUT_NAME _grasp_server PREFIX "")
+set_target_properties(${GRASP_LIBRARY}_python
+  PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY 
+      ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
 ################################################################################
 ################################################################################

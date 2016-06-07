@@ -19,10 +19,13 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INCLUDE_GRASP_SERVER_LIBRARY_GRASP_SERVER_H_
 #define INCLUDE_GRASP_SERVER_LIBRARY_GRASP_SERVER_H_
 #include <stdint.h>
+#include <Eigen/Eigen>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "moveit_msgs/Grasp.h"
+#include "geometry_msgs/Pose.h"
+#include "std_msgs/String.h"
 #include "unr_object_manipulation/uomconfig.h"
 #include "ros/ros.h"
 
@@ -37,14 +40,14 @@ class Pose {
   Pose();
   ~Pose();
 
-  bool SetPose(moveit_msgs::Pose pose);
-  moveit_msgs::Pose GetPose() const;
-  Vec4f GetPoseNormal(Pose pose) const;
-  Vec4f GetPoseNormal() const;
+  bool SetPose(geometry_msgs::Pose pose);
+  geometry_msgs::Pose GetPose() const;
+  Eigen::Vector4f GetPoseNormal(geometry_msgs::Pose pose) const;
+  Eigen::Vector4f GetPoseNormal() const;
 
  private:
-  moveit_msgs::Pose pose_;
-}
+  geometry_msgs::Pose pose_;
+};
 
 class Grasp {
  public:

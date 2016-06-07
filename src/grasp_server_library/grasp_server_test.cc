@@ -19,11 +19,15 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 // Testing Application API Object
 #include "grasp_server_library/grasp_server.h"
 #include <gtest/gtest.h>
+#include "ros/ros.h"
 
-
-
+TEST(SimpleTests, AddObject) {
+  grasplib::GraspServer server("right");
+  ASSERT_EQ(server.AddObject("fork"), true);
+}
 
 int main(int argc, char *argv[]) {
+  ros::init(argc, argv, "Test_Node");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
