@@ -103,7 +103,7 @@ class PoseWrapper : public Pose {
   bp::list GetPosePython() const {
     return convertPoseToList(GetPose());
   }
-  bp::list GetPoseNormalPython(bp::list pose) const {
+  bp::list GetPoseNormalPythonPose(bp::list pose) const {
     geometry_msgs::Pose msg;
     convertListToPose(pose, msg);
     return ConvertVector4fToList(GetPoseNormal(msg));
@@ -112,8 +112,26 @@ class PoseWrapper : public Pose {
     return ConvertVector4fToList(GetPoseNormal());
   }
 };
+////////////////////////////////////////////////////////////////////////////////
+// INTERFACE
+////////////////////////////////////////////////////////////////////////////////
+static void WrapPoseInterface() {
+  bp::class_<PoseWrapper> PoseClass("Pose");
+
+  PoseClass.def("SetPose", &PoseWrapper::SetPosePython);
+  PoseClass.def("GetPose", &PoseWrapper::GetPosePython);
+  PoseClass.def("GetPoseNormal", &PoseWrapper::GetPoseNormalPythonPose);
+  PoseClass.def("GetPoseNormal", &PoseWrapper::GetPoseNormalPython);
+}
+////////////////////////////////////////////////////////////////////////////////
+
 // Python Wrapper class
 // class GraspServerWrapper {
 
 // };
 }  // namespace grasplib
+
+BOOST_PYTHON_MODULE(grasp_server) {
+  using namespace grasplib;
+  WrapPoseInterface();
+}
