@@ -132,7 +132,7 @@ target_link_libraries(${GRASP_LIBRARY}_python
 )
 set_target_properties(${GRASP_LIBRARY}_python
   PROPERTIES
-    OUTPUT_NAME _grasp_server PREFIX "")
+    OUTPUT_NAME grasp_server PREFIX "")
 set_target_properties(${GRASP_LIBRARY}_python
   PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY 
