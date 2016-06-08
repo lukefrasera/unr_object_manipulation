@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>. 
 */
 #include "grasp_server_library/grasp_server.h"
+#include <iostream>
 
 namespace grasplib {
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,8 +25,13 @@ namespace grasplib {
 Pose::Pose() {}
 Pose::~Pose() {}
 
-bool Pose::SetPose(geometry_msgs::Pose pose) {}
-geometry_msgs::Pose Pose::GetPose() const {}
+bool Pose::SetPose(geometry_msgs::Pose pose) {
+  pose_ = pose;
+  return true;
+}
+geometry_msgs::Pose Pose::GetPose() const {
+  return pose_;
+}
 Eigen::Vector4f Pose::GetPoseNormal(geometry_msgs::Pose pose) const {}
 Eigen::Vector4f Pose::GetPoseNormal() const {}
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,6 +109,11 @@ bool GraspServer::MergeObjects(
   return false;
 }
 Pose GraspServer::GetArmPose(std::string arm) {
+  Pose pose;
+  geometry_msgs::Pose msg;
+  msg.position.x = 10.0;
+  pose.SetPose(msg);
+  return pose;
 }
 Grasp GraspServer::GenerateGraspFromPose(Pose pose) {}
 ObjectPickPlace GraspServer::GetObject(std::string object) {}

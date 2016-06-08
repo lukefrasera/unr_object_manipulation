@@ -19,6 +19,7 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/python.hpp>
 #include "grasp_server_library/grasp_server.h"
 #include <Python.h>
+#include <string>
 
 // Convert Python Bopost Scope
 namespace bp = boost::python;
@@ -115,7 +116,7 @@ class PoseWrapper : public Pose {
 ////////////////////////////////////////////////////////////////////////////////
 // INTERFACE
 ////////////////////////////////////////////////////////////////////////////////
-static void WrapPoseInterface() {
+static bp::class_<PoseWrapper> WrapPoseInterface() {
   bp::class_<PoseWrapper> PoseClass("Pose");
 
   PoseClass.def("SetPose", &PoseWrapper::SetPosePython);
@@ -125,13 +126,141 @@ static void WrapPoseInterface() {
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-// Python Wrapper class
-// class GraspServerWrapper {
+////////////////////////////////////////////////////////////////////////////////
+// Grasp
+////////////////////////////////////////////////////////////////////////////////
+class GraspWrapper : public Grasp {
+ public:
+  GraspWrapper() : Grasp() {}
+};
 
-// };
+////////////////////////////////////////////////////////////////////////////////
+// INTERFACE
+////////////////////////////////////////////////////////////////////////////////
+static void WrapGraspInterface() {
+  bp::class_<GraspWrapper> GraspClass("Grasp");
+}
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// ObjectPickPlace
+////////////////////////////////////////////////////////////////////////////////
+class ObjectPickPlaceWrapper : public ObjectPickPlace {
+ public:
+  ObjectPickPlaceWrapper() : ObjectPickPlace() {}
+
+  bool GenerateGraspFromPosePython() {
+    return GenerateGraspFromPose();
+  }
+
+  bool GetPickPython() {
+    return GetPick();
+  }
+
+  bool GetPlacePython() {
+    return GetPlace();
+  }
+
+  bool SetPickPython() {
+    return GetPick();
+  }
+
+  bool SetPlacePython() {
+    return SetPlace();
+  }
+
+  bool SetTypePython() {
+    return SetType();
+  }
+
+  bool SetNamePython() {
+    return SetName();
+  }
+};
+////////////////////////////////////////////////////////////////////////////////
+// INTERFACE
+////////////////////////////////////////////////////////////////////////////////
+static void WrapObjectPickPlaceInterface() {
+  bp::class_<ObjectPickPlaceWrapper> ObjectPickPlaceClass("ObjectPickPlace");
+
+  ObjectPickPlaceClass.def("GenerateGraspFromPose",
+    &ObjectPickPlaceWrapper::GenerateGraspFromPosePython);
+
+  ObjectPickPlaceClass.def("GetPick",
+    &ObjectPickPlaceWrapper::GetPickPython);
+
+  ObjectPickPlaceClass.def("GetPlace",
+    &ObjectPickPlaceWrapper::GetPlacePython);
+
+  ObjectPickPlaceClass.def("SetPick",
+    &ObjectPickPlaceWrapper::SetPickPython);
+
+  ObjectPickPlaceClass.def("SetPlace",
+    &ObjectPickPlaceWrapper::SetPlacePython);
+
+  ObjectPickPlaceClass.def("SetType",
+    &ObjectPickPlaceWrapper::SetTypePython);
+
+  ObjectPickPlaceClass.def("SetName",
+    &ObjectPickPlaceWrapper::SetNamePython);
+}
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// Grasp Server Python Wrapper class
+////////////////////////////////////////////////////////////////////////////////
+class GraspServerWrapper : public GraspServer {
+ public:
+  GraspServerWrapper(std::string arm) : 
+      GraspServer(arm) {}
+
+  std::string CheckServerStatePython() {
+    std::string status;
+    CheckServerState(&status);
+    return status;
+  }
+
+  bool AddObjectPython(bp::str object) {
+    return AddObject(bp::extract<std::string>(object));
+  }
+
+  bool RemoveObjectPython(bp::str object) {
+    return RemoveObject(bp::extract<std::string>(object));
+  }
+
+  bool LoadObjectsPython(bp::str filename) {
+
+  }
+
+  bool LoadObjectsPython(bp::list objects) {
+
+  }
+
+  bool SaveObjectsPython(bp::str filename) {
+
+  }
+
+  bool SaveObjectsPython(bp::str filename, bp::list objects) {}
+  bool MergeObjectsPython(bp::str filename) {}
+  bool MergeObjectsPython(bp::str filename, bp::list objects) {}
+
+  PoseWrapper GetArmPosePython(bp::str arm) {
+    PoseWrapper pose;
+    Pose& pose_ref = pose;
+    pose_ref = GetArmPose(bp::extract<std::string>(arm));
+    return pose;
+  }
+};
+
+static void WrapGraspServerInterface() {
+  bp::class_<GraspServerWrapper>("GraspServer", bp::init<std::string>())
+    .def("GetArmPose", &GraspServerWrapper::GetArmPosePython);
+}
 }  // namespace grasplib
 
 BOOST_PYTHON_MODULE(grasp_server) {
-  using namespace grasplib;
-  WrapPoseInterface();
+  grasplib::WrapPoseInterface();
+  grasplib::WrapGraspInterface();
+  grasplib::WrapObjectPickPlaceInterface();
+  grasplib::WrapGraspServerInterface();
 }
