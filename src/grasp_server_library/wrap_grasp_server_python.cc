@@ -211,8 +211,7 @@ static void WrapObjectPickPlaceInterface() {
 ////////////////////////////////////////////////////////////////////////////////
 class GraspServerWrapper : public GraspServer {
  public:
-  GraspServerWrapper(std::string arm) : 
-      GraspServer(arm) {}
+  GraspServerWrapper(std::string arm) : GraspServer(arm) {}
 
   bp::str CheckServerStatePython() {
     std::string status = "Hello";
@@ -263,7 +262,8 @@ static void WrapGraspServerInterface() {
     .def("SaveObjects", &GraspServerWrapper::SaveObjectsPython)
     .def("MergeObjects", &GraspServerWrapper::MergeObjectsPythonFile)
     .def("MergeObjects", &GraspServerWrapper::MergeObjectsPython)
-    .def("GetArmPose", &GraspServerWrapper::GetArmPosePython);
+    .def("GetArmPose", &GraspServerWrapper::GetArmPosePython)
+  ;
 }
 }  // namespace grasplib
 
