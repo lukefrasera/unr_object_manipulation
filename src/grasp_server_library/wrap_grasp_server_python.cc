@@ -214,10 +214,10 @@ class GraspServerWrapper : public GraspServer {
   GraspServerWrapper(std::string arm) : 
       GraspServer(arm) {}
 
-  std::string CheckServerStatePython() {
-    std::string status;
-    CheckServerState(&status);
-    return status;
+  bp::str CheckServerStatePython() {
+    std::string status = "Hello";
+    // CheckServerState(&status);
+    return bp::str(status.c_str());
   }
 
   bool AddObjectPython(bp::str object) {
@@ -228,7 +228,7 @@ class GraspServerWrapper : public GraspServer {
     return RemoveObject(bp::extract<std::string>(object));
   }
 
-  bool LoadObjectsPython(bp::str filename) {
+  bool LoadObjectsPythonFile(bp::str filename) {
 
   }
 
@@ -236,12 +236,12 @@ class GraspServerWrapper : public GraspServer {
 
   }
 
-  bool SaveObjectsPython(bp::str filename) {
+  bool SaveObjectsPythonFile(bp::str filename) {
 
   }
 
   bool SaveObjectsPython(bp::str filename, bp::list objects) {}
-  bool MergeObjectsPython(bp::str filename) {}
+  bool MergeObjectsPythonFile(bp::str filename) {}
   bool MergeObjectsPython(bp::str filename, bp::list objects) {}
 
   PoseWrapper GetArmPosePython(bp::str arm) {
@@ -254,6 +254,15 @@ class GraspServerWrapper : public GraspServer {
 
 static void WrapGraspServerInterface() {
   bp::class_<GraspServerWrapper>("GraspServer", bp::init<std::string>())
+    .def("CheckServerState", &GraspServerWrapper::CheckServerStatePython)
+    .def("AddObject", &GraspServerWrapper::AddObjectPython)
+    .def("RemoveObject", &GraspServerWrapper::RemoveObjectPython)
+    .def("LoadObjects", &GraspServerWrapper::LoadObjectsPythonFile)
+    .def("LoadObjects", &GraspServerWrapper::LoadObjectsPython)
+    .def("SaveObjects", &GraspServerWrapper::SaveObjectsPythonFile)
+    .def("SaveObjects", &GraspServerWrapper::SaveObjectsPython)
+    .def("MergeObjects", &GraspServerWrapper::MergeObjectsPythonFile)
+    .def("MergeObjects", &GraspServerWrapper::MergeObjectsPython)
     .def("GetArmPose", &GraspServerWrapper::GetArmPosePython);
 }
 }  // namespace grasplib

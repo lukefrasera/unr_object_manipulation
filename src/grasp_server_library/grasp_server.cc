@@ -115,10 +115,16 @@ Pose GraspServer::GetArmPose(std::string arm) {
   pose.SetPose(msg);
   return pose;
 }
-Grasp GraspServer::GenerateGraspFromPose(Pose pose) {}
-ObjectPickPlace GraspServer::GetObject(std::string object) {}
+Grasp GraspServer::GenerateGraspFromPose(Pose pose) {
+  return Grasp();
+}
+ObjectPickPlace GraspServer::GetObject(std::string object) {
+  return ObjectPickPlace();
+}
 std::vector<ObjectPickPlace> GraspServer::GetObjects(
-    std::vector<std::string> objects) {}
+    std::vector<std::string> objects) {
+  return std::vector<ObjectPickPlace>();
+}
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 }  // namespace grasplib
