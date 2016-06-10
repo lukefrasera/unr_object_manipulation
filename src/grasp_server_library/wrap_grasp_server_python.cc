@@ -228,20 +228,51 @@ class GraspServerWrapper : public GraspServer {
   }
 
   bool LoadObjectsPythonFile(bp::str filename) {
+    return LoadObjects(bp::extract<std::string>(filename));
+  }
 
+  static std::vector<ObjectPickPlace> ObjectPickPlaceWraptoBase(
+      std::vector<ObjectPickPlaceWrapper> objects) {
+    std::vector<ObjectPickPlace> list(objects.size());
+
+    for (int i = 0; i != objects.size(); ++i) {
+      list[i] = *reinterpret_cast<ObjectPickPlace*>(&objects[i]);
+    }
+    return list;
   }
 
   bool LoadObjectsPython(bp::list objects) {
+    std::vector<ObjectPickPlaceWrapper> wrapper_list =
+      py_bindings_tools::typeFromList<ObjectPickPlaceWrapper>(objects);
 
+    // Convert to base class type;
+    std::vector<ObjectPickPlace> list = ObjectPickPlaceWraptoBase(wrapper_list);
+    return LoadObjects(list);
   }
 
   bool SaveObjectsPythonFile(bp::str filename) {
-
+    return SaveObjects(bp::extract<std::string>(filename));
   }
 
-  bool SaveObjectsPython(bp::str filename, bp::list objects) {}
-  bool MergeObjectsPythonFile(bp::str filename) {}
-  bool MergeObjectsPython(bp::str filename, bp::list objects) {}
+  bool SaveObjectsPython(bp::str filename, bp::list objects) {
+    std::vector<ObjectPickPlaceWrapper> wrapper_list =
+      py_bindings_tools::typeFromList<ObjectPickPlaceWrapper>(objects);
+
+    // Convert to base class type;
+    std::vector<ObjectPickPlace> list = ObjectPickPlaceWraptoBase(wrapper_list);
+    return SaveObjects(bp::extract<std::string>(filename), list);
+  }
+  bool MergeObjectsPythonFile(bp::str filename) {
+    return MergeObjects(bp::extract<std::string>(filename));
+  }
+  bool MergeObjectsPython(bp::str filename, bp::list objects) {
+    std::vector<ObjectPickPlaceWrapper> wrapper_list =
+      py_bindings_tools::typeFromList<ObjectPickPlaceWrapper>(objects);
+
+    std::vector<ObjectPickPlace> list = ObjectPickPlaceWraptoBase(wrapper_list);
+
+    return MergeObjects(bp::extract<std::string>(filename), list);
+  }
 
   PoseWrapper GetArmPosePython(bp::str arm) {
     PoseWrapper pose;
@@ -252,18 +283,19 @@ class GraspServerWrapper : public GraspServer {
 };
 
 static void WrapGraspServerInterface() {
-  bp::class_<GraspServerWrapper>("GraspServer", bp::init<std::string>())
+  bp::class_<GraspServerWrapper> GraspServerClass(
+    "GraspServer", bp::init<std::string>());
+  GraspServerClass
     .def("CheckServerState", &GraspServerWrapper::CheckServerStatePython)
-    .def("AddObject", &GraspServerWrapper::AddObjectPython)
-    .def("RemoveObject", &GraspServerWrapper::RemoveObjectPython)
-    .def("LoadObjects", &GraspServerWrapper::LoadObjectsPythonFile)
-    .def("LoadObjects", &GraspServerWrapper::LoadObjectsPython)
-    .def("SaveObjects", &GraspServerWrapper::SaveObjectsPythonFile)
-    .def("SaveObjects", &GraspServerWrapper::SaveObjectsPython)
-    .def("MergeObjects", &GraspServerWrapper::MergeObjectsPythonFile)
-    .def("MergeObjects", &GraspServerWrapper::MergeObjectsPython)
-    .def("GetArmPose", &GraspServerWrapper::GetArmPosePython)
-  ;
+    .def("AddObject",        &GraspServerWrapper::AddObjectPython)
+    .def("RemoveObject",     &GraspServerWrapper::RemoveObjectPython)
+    .def("LoadObjects",      &GraspServerWrapper::LoadObjectsPythonFile)
+    .def("LoadObjects",      &GraspServerWrapper::LoadObjectsPython)
+    .def("SaveObjects",      &GraspServerWrapper::SaveObjectsPythonFile)
+    .def("SaveObjects",      &GraspServerWrapper::SaveObjectsPython)
+    .def("MergeObjects",     &GraspServerWrapper::MergeObjectsPythonFile)
+    .def("MergeObjects",     &GraspServerWrapper::MergeObjectsPython)
+    .def("GetArmPose",       &GraspServerWrapper::GetArmPosePython);
 }
 }  // namespace grasplib
 
