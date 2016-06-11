@@ -18,6 +18,7 @@ along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <boost/python.hpp>
 #include "grasp_server_library/grasp_server.h"
+#include "python_bindings_tools/roscpp_initializer.h"
 #include <Python.h>
 #include <string>
 
@@ -209,9 +210,12 @@ static void WrapObjectPickPlaceInterface() {
 ////////////////////////////////////////////////////////////////////////////////
 // Grasp Server Python Wrapper class
 ////////////////////////////////////////////////////////////////////////////////
-class GraspServerWrapper : public GraspServer {
+class GraspServerWrapper : protected py_bindings_tools::ROScppInitializer,
+                           public GraspServer {
  public:
-  GraspServerWrapper(std::string arm) : GraspServer(arm) {}
+  GraspServerWrapper(std::string arm) :
+      GraspServer(arm),
+      py_bindings_tools::ROScppInitializer() {}
 
   bp::str CheckServerStatePython() {
     std::string status = "Hello";

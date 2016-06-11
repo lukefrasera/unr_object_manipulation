@@ -130,7 +130,7 @@ class GraspServer {
   bool _GeneratePoseCB(std_msgs::String req, Pose res);
 
  protected:
-  // ros::NodeHandle nh_;
+  ros::NodeHandle nh_;
   std::unordered_map<std::string, ObjectPickPlace> objects_;
 };
 }  // namespace grasplib
