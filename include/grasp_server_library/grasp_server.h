@@ -75,14 +75,17 @@ class ObjectPickPlace {
   bool GetPlace();
   bool SetPick();
   bool SetPlace();
+  uint32_t GetType();
   bool SetType();
+  std::string GetName();
   bool SetName();
 
  private:
-  std::string name;
-  uint32_t type;
-  Pose pick;
-  Pose place;
+  std::string name_;
+  uint32_t type_;
+  Grasp pick_;
+  Grasp place_;
+  uint32_t status_;
 };
 
 class GraspServer {

@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with UNR_Object_Manipulation.  If not, see <http://www.gnu.org/licenses/>. 
 */
 #include "grasp_server_library/grasp_server.h"
+#include "log.h"
 #include <iostream>
 
 namespace grasplib {
@@ -66,8 +67,14 @@ bool ObjectPickPlace::SetPick() {
 bool ObjectPickPlace::SetPlace() {
   return false;
 }
+uint32_t ObjectPickPlace::GetType() {
+  return type_;
+}
 bool ObjectPickPlace::SetType() {
   return false;
+}
+std::string ObjectPickPlace::GetName() {
+  return name_;
 }
 bool ObjectPickPlace::SetName() {
   return false;
@@ -83,29 +90,45 @@ GraspServer::GraspServer(std::string arm) {}
 GraspServer::~GraspServer() {}
 
 bool GraspServer::AddObject(std::string object) {
+  if (objects_.count(object) == 0) {
+    objects_[object];
+    return true;
+  }
   return false;
 }
 bool GraspServer::RemoveObject(std::string object) {
+  if (objects_.count(object) > 0) {
+    objects_.erase(object);
+    return true;
+  }
   return false;
 }
 bool GraspServer::LoadObjects(std::string filename) {
+  LOG_INFO("[WARNING]: File [%s] - Load not implemented!", filename.c_str());
   return false;
 }
 bool GraspServer::LoadObjects(std::vector<ObjectPickPlace> objects) {
-  return false;
+  for (auto it = objects.begin(); it != objects.end(); ++it) {
+    objects_[it->GetName()] =  *it;
+  }
+  return true;
 }
 bool GraspServer::SaveObjects(std::string filename) {
+  LOG_INFO("[WARNING]: File [%s] - Save not implemented!", filename.c_str());
   return false;
 }
 bool GraspServer::SaveObjects(
     std::string filename, std::vector<ObjectPickPlace> objects) {
+  LOG_INFO("[WARNING]: File [%s] - Save not implemented!", filename.c_str());
   return false;
 }
 bool GraspServer::MergeObjects(std::string filename) {
+  LOG_INFO("[WARNING]: File [%s] - Merge not implemented!", filename.c_str());
   return false;
 }
 bool GraspServer::MergeObjects(
     std::string filename, std::vector<ObjectPickPlace> objects) {
+  LOG_INFO("[WARNING]: File [%s] - Merge not implemented!", filename.c_str());
   return false;
 }
 Pose GraspServer::GetArmPose(std::string arm) {
@@ -116,6 +139,7 @@ Pose GraspServer::GetArmPose(std::string arm) {
   return pose;
 }
 Grasp GraspServer::GenerateGraspFromPose(Pose pose) {
+  LOG_INFO("[WARNING]: Grasp Generation not implemented!");
   return Grasp();
 }
 ObjectPickPlace GraspServer::GetObject(std::string object) {
@@ -123,7 +147,12 @@ ObjectPickPlace GraspServer::GetObject(std::string object) {
 }
 std::vector<ObjectPickPlace> GraspServer::GetObjects(
     std::vector<std::string> objects) {
-  return std::vector<ObjectPickPlace>();
+  std::vector<ObjectPickPlace> result;
+  for (auto it = objects.begin(); it != objects.end(); ++it) {
+    if (objects_.count(*it) > 0)
+      result.push_back(objects_[*it]);
+  }
+  return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
