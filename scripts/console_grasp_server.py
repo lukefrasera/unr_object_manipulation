@@ -6,7 +6,10 @@ import urwid, sys, os
 Console application for trianing and testing pick and place framework
 Author: Luke Fraser
 '''
-
+class ObjectWalker(urwid.ListWalker):
+    def __init__(self, object_dict):
+        self.object_reference = object_dict
+    def 
 class TrainingView(urwid.WidgetWrap):
     '''
     A Clss for displaying the interface.
@@ -30,8 +33,47 @@ class TrainingView(urwid.WidgetWrap):
         ('pg smooth',       'dark magenta', 'black')
     ]
     def __init__(self):
+        self.objects_ = {}
+        urwid.WidgetWrap.__init__(self, self.MainWindow())
+    def OnTrain(self):
         pass
+    def OnLoad(self):
+        pass
+    def OnSave(self):
+        pass
+    def OnTest(self, object):
+        pass
+    def _ShadowWindow(view):
+        bg     = urwid.AttrWrap(urwid.SolidFill(u"\u2592"), 'screen edge')
+        shadow = urwid.AttrWrap(urwid.SolidFill(u" "), 'main shadow')
 
+        bg = urwid.Overlay(shadow, bg,
+            ('fixed left', 3), ('fixed right',  1),
+            ('fixed top',  2), ('fixed bottom', 1))
+        view = urwid.Overlay(view, bg,
+            ('fixed left', 2), ('fixed right',  3),
+            ('fixed top',  1), ('fixed bottom', 2))
+        return view
+    def _GenerateObjectList(self):
+        self.objects_list_walker = ObjectWalker(self.objects_)
+        return urwid.ListBox(self.objects_list_walker)
+
+    def MainWindow(self):
+        # Create Main Window
+
+        # Add Components
+
+        # Generate List of objects
+        self.objects_view = self._GenerateObjectList()
+
+        # Generate Options list
+        self.options_view = self._GenerateOptions()
+        view = urwid.Pile([
+            ('weight', 2, self.objects_view),
+            ('weight', 1, self.options_view)],
+            focus_item=2)
+        
+        return self._ShadowWindow(view)
 
 def main():
     pass
