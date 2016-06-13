@@ -9,7 +9,8 @@ Author: Luke Fraser
 class ObjectWalker(urwid.ListWalker):
     def __init__(self, object_dict):
         self.object_reference = object_dict
-    def 
+    def _get_at_pos(self, pos):
+        pass
 class TrainingView(urwid.WidgetWrap):
     '''
     A Clss for displaying the interface.
