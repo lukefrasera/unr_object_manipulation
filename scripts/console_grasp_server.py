@@ -11,6 +11,8 @@ class ObjectWalker(urwid.ListWalker):
         self.object_reference = object_dict
     def _get_at_pos(self, pos):
         pass
+    def get_focus(self):
+        pass
 class TrainingView(urwid.WidgetWrap):
     '''
     A Clss for displaying the interface.
