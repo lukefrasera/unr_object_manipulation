@@ -9,17 +9,30 @@ Author: Luke Fraser
 class ObjectWalker(urwid.ListWalker):
     def __init__(self, object_dict):
         self.object_reference = object_dict
+        self.focus = (0L, 1L)
     def _get_at_pos(self, pos):
-        pass
+        return urwid.Text("%d"%pos[1]), pos
     def get_focus(self):
-        pass
+        return self._get_at_pos(self.focus)
+    def set_focus(self, focus):
+        self.focus = focus
+        self._modified()
+    def get_next(self, start_from):
+        a, b = start_from
+        focus = b, a+b
+        return self._get_at_pos(focus)
+    def get_prev(self, start_from):
+        a, b = start_from
+        focus = b-a, a
+        return self._get_at_pos(focus)
+
 class TrainingView(urwid.WidgetWrap):
     '''
     A Clss for displaying the interface.
     '''
     palette = [
         ('body',            'black',        'light gray',   'standout'),
-        ('header',          'white',        'dark read',    'bold'),
+        ('header',          'white',        'dark red',    'bold'),
         ('sceen edge',      'light blue',   'dark cyan'),
         ('main shadow',     'dark gray',    'black'),
         ('line',            'black',        'light gray',   'standout'),
@@ -46,7 +59,7 @@ class TrainingView(urwid.WidgetWrap):
         pass
     def OnTest(self, object):
         pass
-    def _ShadowWindow(view):
+    def _ShadowWindow(self, view):
         bg     = urwid.AttrWrap(urwid.SolidFill(u"\u2592"), 'screen edge')
         shadow = urwid.AttrWrap(urwid.SolidFill(u" "), 'main shadow')
 
@@ -61,6 +74,10 @@ class TrainingView(urwid.WidgetWrap):
         self.objects_list_walker = ObjectWalker(self.objects_)
         return urwid.ListBox(self.objects_list_walker)
 
+    def _GenerateOptions(self):
+        self.train_button = urwid.Button(u"Train")
+        return urwid.Columns([self.train_button])
+
     def MainWindow(self):
         # Create Main Window
 
@@ -74,12 +91,15 @@ class TrainingView(urwid.WidgetWrap):
         view = urwid.Pile([
             ('weight', 2, self.objects_view),
             ('weight', 1, self.options_view)],
-            focus_item=2)
+            focus_item=1)
         
         return self._ShadowWindow(view)
+    def main(self):
+        self.loop = urwid.MainLoop(self, self.palette)
+        self.loop.run()
 
 def main():
-    pass
+    TrainingView().main()
 
 if __name__ == '__main__':
     main()
