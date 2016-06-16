@@ -29,24 +29,22 @@ include_directories(
   ${PYTHON_INCLUDE_DIRS}
 )
 # message("PYTHON INCLUDES ${PYTHON_INCLUDES")
-# add_service_files(
-#   FILES
-# )
 
-# add_service_files(
-#   FILES
-# )
+catkin_python_setup()
+
+add_service_files(
+  FILES
+  object_request.srv
+)
 
 # add_action_files(
 #   FILES
 # )
 
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
-
-catkin_python_setup()
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 catkin_package(
   # INCLUDE_DIRS
@@ -141,6 +139,22 @@ set_target_properties(${GRASP_LIBRARY}_python
 ################################################################################
 ################################################################################
 
+
+################################################################################
+########################### GRASP COMMANDER SERVICE ############################
+################################################################################
+add_executable(grasp_commander_service
+  src/grasp_commander/grasp_commander_service.cc
+)
+target_link_libraries(grasp_commander_service
+  ${catkin_LIBRARIES}
+)
+add_dependencies(grasp_commander_service
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+################################################################################
+################################################################################
 
 ################################################################################
 ################################### TESTING ####################################

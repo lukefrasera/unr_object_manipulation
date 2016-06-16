@@ -9,9 +9,9 @@ Author: Luke Fraser
 class ObjectWalker(urwid.ListWalker):
     def __init__(self, object_dict):
         self.object_reference = object_dict
-        self.focus = (0L, 1L)
+        self.focus = (0, 1)
     def _get_at_pos(self, pos):
-        return urwid.Text("%d"%pos[1]), pos
+        return urwid.Text(self.object_reference[pos[1]]), pos
     def get_focus(self):
         return self._get_at_pos(self.focus)
     def set_focus(self, focus):
@@ -49,16 +49,30 @@ class TrainingView(urwid.WidgetWrap):
         ('pg smooth',       'dark magenta', 'black')
     ]
     def __init__(self):
-        self.objects_ = {}
+        self.objects_ = [
+            "neutral",
+            "placemat",
+            "cup",
+            "plate",
+            "fork",
+            "spoon",
+            "knife",
+            "bowl",
+            "soda",
+            "wineglass"
+        ]
         urwid.WidgetWrap.__init__(self, self.MainWindow())
-    def OnTrain(self):
+    def OnTrain(self, button, name):
         pass
-    def OnLoad(self):
+    def OnLoad(self, button, filename):
         pass
-    def OnSave(self):
+    def OnSave(self, button, filename):
         pass
-    def OnTest(self, object):
+    def OnTest(self, button, object):
         pass
+    def OnQuit(self, button, name):
+        raise urwid.ExitMainLoop()
+
     def _ShadowWindow(self, view):
         bg     = urwid.AttrWrap(urwid.SolidFill(u"\u2592"), 'screen edge')
         shadow = urwid.AttrWrap(urwid.SolidFill(u" "), 'main shadow')
@@ -71,27 +85,32 @@ class TrainingView(urwid.WidgetWrap):
             ('fixed top',  1), ('fixed bottom', 2))
         return view
     def _GenerateObjectList(self):
-        self.objects_list_walker = ObjectWalker(self.objects_)
+        text_list = [urwid.AttrMap(urwid.Text(x), None, focus_map='button select') for x in self.objects_]
+        self.objects_list_walker = urwid.SimpleFocusListWalker(text_list)
         return urwid.ListBox(self.objects_list_walker)
 
+    def _button(self, t, fn):
+        w = urwid.Button(t)
+        urwid.connect_signal(w, 'click', fn, t)
+        w = urwid.AttrWrap(w, 'button normal', 'button select')
+        return w
     def _GenerateOptions(self):
-        self.train_button = urwid.Button(u"Train")
-        return urwid.Columns([self.train_button])
+        self.button_list = []
+        self.button_list.append(self._button(u"Train", self.OnTrain))
+        self.button_list.append(self._button(u"Test", self.OnTest))
+        self.button_list.append(self._button(u"Quit", self.OnQuit))
+        return urwid.Filler(urwid.Columns(self.button_list))
 
     def MainWindow(self):
-        # Create Main Window
-
-        # Add Components
-
         # Generate List of objects
         self.objects_view = self._GenerateObjectList()
 
         # Generate Options list
         self.options_view = self._GenerateOptions()
-        view = urwid.Pile([
-            ('weight', 2, self.objects_view),
-            ('weight', 1, self.options_view)],
-            focus_item=1)
+
+        # Create Main Window
+        pile = urwid.Pile([('weight', 3, self.objects_view), self.options_view], focus_item=1)
+        view = urwid.Padding(pile, left=2, right=2)
         
         return self._ShadowWindow(view)
     def main(self):
