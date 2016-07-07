@@ -92,6 +92,7 @@ def main():
     node_list = rospy.get_param('~NodeList', None)
 
     for node in node_list:
+        # build pr2 list
         print node
     interface = NodePeerConnectionInterface('test', ['test2', 'test3'], server, running_event)
     print 'Spinning'
