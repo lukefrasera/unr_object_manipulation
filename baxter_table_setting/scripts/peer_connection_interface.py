@@ -4,6 +4,13 @@ import zmq
 import rospy
 import threading
 from robotics_task_tree_eval.msg import *
+import pickle
+
+def enum(*sequential, **named):
+    enums = dict(zip(sequential, range(len(sequential))), **named)
+    reverse = dict((value, key) for key, value in enums.iteritems())
+    enums['reverse_mapping'] = reverse
+    return type('Enum', (), enums)
 
 def SubThread(sub, cb, event):
     count = 0
@@ -11,8 +18,9 @@ def SubThread(sub, cb, event):
     while event.is_set():
         try:
             [address, msg] = sub.recv_multipart()
-            cb(msg)
+            cb(msg, address)
             timeout = False
+            count += 1
         except zmq.ZMQError as e:
             if e.errno == zmq.ETERM:
                 break
@@ -20,42 +28,39 @@ def SubThread(sub, cb, event):
                 timeout = True
             else:
                 raise
-        count += 1
 
 class NodePeerConnectionInterface:
-    def __init__(self, node_name, peer_list, server_params, running_event):
-        self.node_name = node_name
-        self.peer_list = peer_list
+    def __init__(self, server_params, running_event):
         self.server_params = server_params
         self.context = zmq.Context()
         self.running_event = running_event
 
-        # Setup ros subscription
-        self.InitializeSubscriber(node_name)
-        self.InitializePublisher(node_name)
+        self.pub = self.CreateZMQPub()
+        self.ros_pubs = dict()
+        self.ros_subs = dict()
+        self.subs = dict()
 
     def InitializeSubscriber(self, name):
         # Setup peer listener
-        self.peer_sub = rospy.Subscriber('%s%s'%(name, '_peer'), ControlMessage, self.ReceiveFromPeer, queue_size=5)
-
-        # setup zeromq publisher
-        self.pub = self.CreateZMQPub()
+        topic = '%s%s'%(name, '_peer')
+        self.ros_subs[topic] = rospy.Subscriber(topic, ControlMessage, self.ReceiveFromPeer, queue_size=5, callback_args=topic)
 
     def InitializePublisher(self, name):
         # setup peer publisher
-        self.peer_pub = rospy.Publisher('%s%s'%(name, '_peer'), ControlMessage, queue_size=5)
+        topic = '%s%s'%(name, '_peer')
+        self.ros_pubs[topic] = rospy.Publisher(topic, ControlMessage, queue_size=5)
 
         # setup zeromq subscriber
-        self.sub = self.CreateZMQSub('%s%s'%(name, '_peer'), self.SendToPeer)
+        self.subs[topic] = self.CreateZMQSub(topic, self.SendToPeer)
 
-    def ReceiveFromPeer(self, msg):
+    def ReceiveFromPeer(self, msg, topic):
         # Publish to server
-        print 'Received from peer'
-        # self.pub.send_multipart(self.node_name, msg)
+        print 'Received from peer topic: %s'%(topic)
+        self.pub.send_multipart([topic, pickle.dumps(msg)])
 
-    def SendToPeer(self, msg):
-        print 'send to peer'
-        # self.peer_pub.publish(msg)
+    def SendToPeer(self, msg, topic):
+        print 'send to peer topic: %s'%(topic)
+        self.ros_pubs[topic].publish(pickle.loads(msg))
         
 
     def CreateZMQPub(self):
@@ -75,6 +80,18 @@ class NodePeerConnectionInterface:
 
         return subscriber
 
+    def AddNode(self, name):
+        self.InitializeSubscriber(name)
+        self.InitializePublisher(name)
+    def AddOutputNode(self, name):
+        self.InitializeSubscriber(name)
+    def AddInputNode(self, name):
+        self.InitializePublisher(name)
+
+
+
+ROBOT = enum('PR2', 'BAXTER')
+ROBOT_DICT = {'PR2' : 0, 'BAXTER' : 1}
 def main():
     # Initialize Node
     rospy.init_node('interface')
@@ -82,19 +99,25 @@ def main():
         def __init__(self):
             pass
     server = ServerParam
-    server.sub_port = '5565'
-    server.pub_port = '5566'
+    server.sub_port = rospy.get_param('~sub_port', '5565')
+    server.pub_port = rospy.get_param('~pub_port', '5566')
     server.address = 'localhost'
     running_event = threading.Event()
     running_event.set()
     print 'Creating Nodes'
 
     node_list = rospy.get_param('~NodeList', None)
+    task_file = rospy.get_param('~Nodes', None)
+    robot = rospy.get_param('~robot', None)
+    robot = ROBOT_DICT[robot]
 
+    interface = NodePeerConnectionInterface(server, running_event)
     for node in node_list:
-        # build pr2 list
-        print node
-    interface = NodePeerConnectionInterface('test', ['test2', 'test3'], server, running_event)
+        if task_file[node]['mask']['robot'] != robot:
+            interface.AddOutputNode(node)
+        else:
+            interface.AddInputNode(node)
+
     print 'Spinning'
     rospy.spin()
     print 'shutting Down node'

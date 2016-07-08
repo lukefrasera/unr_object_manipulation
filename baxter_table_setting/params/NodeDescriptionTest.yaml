@@ -4,9 +4,9 @@
 #   AND,          // 2
 #   BEHAVIOR,     // 3
 #   R0OT,         // 4
-# } NodeTypes_t;  // 5
+# } NodeTypes_t;
 
-# typedef enum RobotTypes {  // Eight possible robots
+# typedef enum RobotTypes {  // 256 possible robots
 #   PR2 = 0,
 #   BAXTER,
 # }
