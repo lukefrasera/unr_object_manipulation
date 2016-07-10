@@ -14,10 +14,10 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(GTest REQUIRED)
 find_package(Eigen3)
 find_package(Boost REQUIRED COMPONENTS
-  python
   thread
-  system
+  python
   program_options
+  system
   filesystem
 )
 find_package(PythonLibs 2.7 REQUIRED)

@@ -26,6 +26,28 @@ class ObjectWalker(urwid.ListWalker):
         focus = b-a, a
         return self._get_at_pos(focus)
 
+
+class TrainingObject(urwid.WidgetWrap):
+    def __init__(self, object_name):
+        urwid.WidgetWrap.__init__(self, self.MainWindow)
+    def _button(self, t, fn):
+        w = urwid.Button(t)
+        urwid.connect_signal(w, 'click', fn, t)
+        w = urwid.AttrWrap(w, 'button normal', 'button select')
+        return w
+
+class TrainingWindow(urwid.WidgetWrap):
+    def __init__(self):
+        urwid.WidgetWrap.__init__(self, self.MainWindow())
+    def MainWindow(self):
+        self.main_list = urwid.SimpleFocusListWalker([])
+        main = urwid.ListBox([]self.main_list)
+        return main
+    def add(self, object_name):
+        ok = self._button('ok', )
+        columns = urwid.Columns()
+        self.main_list.append()
+
 class TrainingView(urwid.WidgetWrap):
     '''
     A Clss for displaying the interface.
@@ -63,7 +85,12 @@ class TrainingView(urwid.WidgetWrap):
         ]
         urwid.WidgetWrap.__init__(self, self.MainWindow())
     def OnTrain(self, button, name):
-        pass
+        '''
+        This window is reponsible for training against all objects displayed
+        within the list-box.
+        '''
+        for object in self.objects_list_walker:
+            self.training_list.add(object.name)
     def OnLoad(self, button, filename):
         pass
     def OnSave(self, button, filename):
@@ -108,11 +135,21 @@ class TrainingView(urwid.WidgetWrap):
         # Generate Options list
         self.options_view = self._GenerateOptions()
 
+        # Create Training window list
+        self.training_list = TrainingWindow()
         # Create Main Window
         pile = urwid.Pile([('weight', 3, self.objects_view), self.options_view], focus_item=1)
-        view = urwid.Padding(pile, left=2, right=2)
-        
+        column = urwid.Columns([('weight', 3, pile), self.training_list], focus_column=0)
+        view = urwid.Padding(column, left=2, right=2)
         return self._ShadowWindow(view)
+    def OnTraining(self):
+        '''
+        This window is reponsible for training against all objects displayed
+        within the list-box.
+        '''
+        #Create Training pop window for each object
+        pass
+
     def main(self):
         self.loop = urwid.MainLoop(self, self.palette)
         self.loop.run()
